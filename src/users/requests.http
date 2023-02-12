@@ -6,3 +6,37 @@ Content-Type: application/json
   "email": "asdlja@sasd.com",
   "password": "asdasda"
 }
+
+### Find a particular user with a given id
+GET http://localhost:3000/auth/1231231
+
+### Find all user with a given email
+GET http://localhost:3000/auth?email=asdlja@sasd.com
+
+### Delete user with a given id
+DELETE http://localhost:3000/auth/1212312
+
+### Update a user email with a given id
+PATCH http://localhost:3000/auth/221231
+Content-Type: application/json
+
+{
+  "email": "aaaa@aaaa.com"
+}
+
+### Update a user password with a given id
+PATCH http://localhost:3000/auth/2
+Content-Type: application/json
+
+{
+  "password": "bbbbbb"
+}
+
+### Update a user password & email with a given id
+PATCH http://localhost:3000/auth/2
+Content-Type: application/json
+
+{
+  "email": "cccc@cccc.com",
+  "password": "cccccc"
+}
