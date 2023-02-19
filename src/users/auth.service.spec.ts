@@ -9,10 +9,21 @@ describe('AuthService', () => {
   let fakeUserService: Partial<UsersService>;
 
   beforeEach(async () => {
+    const users: User[] = [];
     fakeUserService = {
-      find: () => Promise.resolve([]),
-      create: (email: string, password: string) =>
-        Promise.resolve({ id: 1, email, password } as User),
+      find: (email) => {
+        const filteredUser = users.filter((user) => user.email === email);
+        return Promise.resolve(filteredUser);
+      },
+      create: (email: string, password: string) => {
+        const user = {
+          id: Math.floor(Math.random() * 9999999),
+          email,
+          password,
+        } as User;
+        users.push(user);
+        return Promise.resolve(user);
+      },
     };
 
     const module = await Test.createTestingModule({
@@ -43,11 +54,11 @@ describe('AuthService', () => {
   });
 
   it('throws an error if user signs up with email that is in use', async () => {
-    fakeUserService.find = () =>
-      Promise.resolve([
-        { id: 1, email: 'test@test.com', password: '12345' } as User,
-      ]);
-    await expect(service.signup('test@test.com', '12345')).rejects.toThrow(
+    const email = 'test@test.com';
+    const password = '12345';
+
+    await service.signup(email, password);
+    await expect(service.signup(email, password)).rejects.toThrow(
       BadRequestException,
     );
   });
@@ -56,5 +67,25 @@ describe('AuthService', () => {
     await expect(service.signIn('test@test.com', '12345')).rejects.toThrow(
       NotFoundException,
     );
+  });
+
+  it('throws if an invalid password is provided', async () => {
+    const email = 'test@test.com';
+    const password = '123456';
+
+    await service.signup(email, password);
+    await expect(service.signIn(email, 'password')).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('returns a user is correct password is provided', async () => {
+    const email = 'test@test.com';
+    const password = '12345';
+
+    await service.signup(email, password);
+
+    const user = await service.signIn(email, password);
+    expect(user).toBeDefined();
   });
 });
